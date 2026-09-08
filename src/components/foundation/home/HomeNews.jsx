@@ -7,7 +7,7 @@ import { ArrowRight, Calendar, Newspaper, ExternalLink } from 'lucide-react';
 import { db } from '@/firebase';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 
-const HomeNews = () => {
+const HomeNews = ({ onLoaded }) => {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useRouter();
@@ -21,6 +21,7 @@ const HomeNews = () => {
             }));
             setNews(newsList);
             setLoading(false);
+            if (onLoaded) onLoaded();
         });
 
         return () => unsubscribe();

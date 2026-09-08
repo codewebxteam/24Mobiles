@@ -7,7 +7,7 @@ import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { LayoutGrid, ArrowRight } from 'lucide-react';
 
-const Categories = ({ isHome = false }) => {
+const Categories = ({ isHome = false, onLoaded }) => {
     const navigate = useRouter();
     const [dbProducts, setDbProducts] = useState([]);
     const [dbCategories, setDbCategories] = useState([]);
@@ -27,15 +27,28 @@ const Categories = ({ isHome = false }) => {
         const productsRef = collection(db, 'products');
         const categoriesRef = collection(db, 'categories');
 
+        let productsLoaded = false;
+        let categoriesLoaded = false;
+
+        const checkLoaded = () => {
+            if (productsLoaded && categoriesLoaded) {
+                setIsLoading(false);
+                if (onLoaded) onLoaded();
+            }
+        };
+
         const unsubP = onSnapshot(productsRef, (snap) => {
             const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setDbProducts(data);
-            setIsLoading(false);
+            productsLoaded = true;
+            checkLoaded();
         });
 
         const unsubC = onSnapshot(categoriesRef, (snap) => {
             const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setDbCategories(data);
+            categoriesLoaded = true;
+            checkLoaded();
         });
 
         return () => {
@@ -79,11 +92,9 @@ const Categories = ({ isHome = false }) => {
     }, [dbProducts, dbCategories]);
 
     if (isLoading) {
+        if (isHome) return null;
         return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh]">
-                <div className="w-32 h-16 mb-4 animate-pulse">
-                     <img src="/phones/gemini-svg.svg" alt="Loading" className="w-full h-full object-contain" />
-                </div>
+            <div className={`flex items-center justify-center min-h-[40vh] bg-slate-50`}>
                 <span className="text-amber-600 font-bold uppercase tracking-widest text-sm animate-pulse">Loading Brands...</span>
             </div>
         );

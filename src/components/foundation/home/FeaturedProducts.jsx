@@ -10,7 +10,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 
 import ProductCard from '@/components/product/ProductCard';
 
-const FeaturedProducts = () => {
+const FeaturedProducts = ({ onLoaded }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useRouter();
@@ -29,22 +29,15 @@ const FeaturedProducts = () => {
             // Take only 8
             setProducts(sorted.slice(0, 8));
             setLoading(false);
+            if (onLoaded) onLoaded();
         });
 
         return () => unsubscribe();
     }, []);
 
-    // Styled Loading State
+    // Return null while loading instead of text to avoid layout jumps
     if (loading) {
-        return (
-            <section className="py-20 bg-white font-['Montserrat',sans-serif]">
-                <div className="container mx-auto px-6 text-center">
-                    <p className="text-amber-600 animate-pulse font-bold uppercase tracking-widest text-xs">
-                        Loading Latest Phones...
-                    </p>
-                </div>
-            </section>
-        );
+        return null;
     }
 
     return (
