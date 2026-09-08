@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Star, ChevronRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
 const ProductCard = ({ product }) => {

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Save, Store, Bell, CheckCircle2, ShieldCheck, AlertTriangle } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 const AdminSettings = () => {

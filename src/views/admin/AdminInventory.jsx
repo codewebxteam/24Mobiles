@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Smartphone, Trash2, Edit, X, Search, Database, ExternalLink, ShieldCheck, Tag } from 'lucide-react';
-import useScrollLock from '../../hooks/useScrollLock';
-import { db } from '../../firebase';
+import useScrollLock from '@/hooks/useScrollLock';
+import { db } from '@/firebase';
 import { collection, onSnapshot, doc, deleteDoc, updateDoc, writeBatch, getDocs } from 'firebase/firestore';
 
 const AdminInventory = () => {

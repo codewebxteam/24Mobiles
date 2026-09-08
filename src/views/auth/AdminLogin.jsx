@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, ShieldAlert, ArrowRight, Home, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 
 const AdminLogin = () => {
     const navigate = useRouter();

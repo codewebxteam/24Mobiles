@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
+import { db } from '@/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 import { Facebook, Instagram, Twitter, Youtube, ArrowRight, MapPin, Mail, PhoneCall, Smartphone } from 'lucide-react';

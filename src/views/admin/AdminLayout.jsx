@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import {
     PlusSquare,
@@ -17,7 +17,7 @@ import {
     Image as ImageIcon,
     Newspaper
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLayout = ({children}) => {

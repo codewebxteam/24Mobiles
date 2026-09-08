@@ -8,9 +8,9 @@ import {
     getRedirectResult,
     updateProfile
 } from 'firebase/auth';
-import { auth, googleProvider, db } from '../firebase';
+import { auth, googleProvider, db } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import Loader from '../components/common/Loader';
+import Loader from '@/components/common/Loader';
 
 export const isAdminEmail = (email) => {
     const adminEmails = ['24phonewala@gmail.com'];

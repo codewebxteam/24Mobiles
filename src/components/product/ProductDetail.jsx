@@ -6,12 +6,13 @@ import {
     ArrowLeft, Star, Share2, ShieldCheck, Zap, Battery, Camera, Cpu, 
     CheckCircle2, XCircle, ChevronRight, ExternalLink, Activity, HardDrive, Smartphone
 } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 
-import ShareModal from '../common/ShareModal';
-import RecommendedProducts from './RecommendedProducts';
-import ProductSkeleton from './ProductSkeleton';
+import ShareModal from '@/components/common/ShareModal';
+import RecommendedProducts from '@/components/product/RecommendedProducts';
+import ProductSkeleton from '@/components/product/ProductSkeleton';
+import AdBanner from '@/components/common/AdBanner';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -499,6 +500,9 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
+                            {/* AdSense Placement 1 */}
+                            <AdBanner dataAdSlot="top-product-ad" className="mb-6" />
+
                             {/* Affiliate CTA */}
                             <a 
                                 href={product.affiliateLink || "#"} 
@@ -559,6 +563,11 @@ const ProductDetail = () => {
 
                     </div>
                 </div>
+            </div>
+
+            {/* AdSense Placement 2 */}
+            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 mb-8">
+                <AdBanner dataAdSlot="bottom-product-ad" />
             </div>
 
             {/* Recommendations */}

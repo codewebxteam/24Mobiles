@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
 import { ArrowRight } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { db } from '../../firebase';
+import { useAuth } from '@/context/AuthContext';
+import { db } from '@/firebase';
 import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 
-import ProductCard from './ProductCard';
+import ProductCard from '@/components/product/ProductCard';
 
 const RecommendedProducts = ({ currentProductId, category }) => {
     const navigate = useRouter();

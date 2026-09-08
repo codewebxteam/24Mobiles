@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import UserAvatar from '../common/UserAvatar';
-import ConfirmDialog from '../common/ConfirmDialog';
+import { useAuth } from '@/context/AuthContext';
+import UserAvatar from '@/components/common/UserAvatar';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db, auth } from '../../firebase';
+import { db, auth } from '@/firebase';
 import { updatePassword } from 'firebase/auth';
 
 const ProfileSettings = () => {

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from 'react';
 import { Upload, Smartphone, Plus, X, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useSearchParams, useRouter } from 'next/navigation';
 

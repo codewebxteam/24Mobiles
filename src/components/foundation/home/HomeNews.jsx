@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Calendar, Newspaper, ExternalLink } from 'lucide-react';
 
-import { db } from '../../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 
 const HomeNews = () => {

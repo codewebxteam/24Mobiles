@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, ShoppingCart, Heart, ArrowRight } from 'lucide-react';
-import { useWishlist } from '../../context/WishlistContext';
+import { useWishlist } from '@/context/WishlistContext';
 
-import ConfirmDialog from '../common/ConfirmDialog';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 
 
 const Wishlist = () => {

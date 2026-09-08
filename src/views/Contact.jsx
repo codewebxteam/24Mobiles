@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, PhoneCall, Mail, Send, Sparkles } from 'lucide-react';
-import { db } from '../firebase';
+import { db } from '@/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 const Contact = () => {

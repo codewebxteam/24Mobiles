@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Upload, Plus, X, Trash2, Image as ImageIcon, Link as LinkIcon, AlertCircle, Type, AlignLeft } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot, addDoc, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
 
 const compressImage = (file, maxWidth = 1920, maxHeight = 1080, quality = 0.85) => {

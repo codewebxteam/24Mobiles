@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
 const Categories = () => {

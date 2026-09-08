@@ -5,7 +5,7 @@ import { Home, Smartphone, Tags, Scale, Info, User, Search, X, ChevronRight, Men
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 import throttle from 'lodash/throttle';
 
-import { db } from '../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
 const Header = () => {
@@ -142,7 +142,7 @@ const Header = () => {
                 onClick={() => navigate.push('/')}
               >
                 <div className="flex flex-col items-start justify-center">
-                   <img src="/phones/gemini-svg.svg" alt="24mobiles Logo" className="h-7 md:h-8 object-contain" />
+                   <img src="/phones/gemini-svg.svg" alt="24mobiles Logo" className="h-10 md:h-12 object-contain" />
                    <span className="text-[10px] text-slate-600 font-medium -mt-0.5 ml-1">All About Mobiles & Technology</span>
                 </div>
               </motion.div>
@@ -154,7 +154,7 @@ const Header = () => {
               className="flex flex-col items-center justify-center cursor-pointer lg:hidden absolute left-1/2 -translate-x-1/2"
               onClick={() => navigate.push('/')}
             >
-              <img src="/phones/gemini-svg.svg" alt="24mobiles Logo" className="h-6 object-contain" />
+              <img src="/phones/gemini-svg.svg" alt="24mobiles Logo" className="h-8 md:h-10 object-contain" />
               <span className="text-[8px] text-slate-500 font-medium leading-none -mt-1">All About Mobiles & Technology</span>
             </motion.div>
 
@@ -322,7 +322,7 @@ const Header = () => {
             >
               <div className="flex items-center justify-between p-5 border-b border-slate-100">
                 <div className="flex flex-col items-start justify-center">
-                   <img src="/phones/gemini-svg.svg" alt="24mobiles Logo" className="h-6 object-contain" />
+                   <img src="/phones/gemini-svg.svg" alt="24mobiles Logo" className="h-8 object-contain" />
                    <span className="text-[9px] text-slate-500 font-bold -mt-0.5 ml-1">24MOBILES NAVIGATION</span>
                 </div>
                 <button 

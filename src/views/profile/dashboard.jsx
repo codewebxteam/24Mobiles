@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { User, ShoppingBag, ShoppingCart, Heart } from 'lucide-react';
 
 // Components Import
-import ProfileSettings from '../../components/profile/profile';
+import ProfileSettings from '@/components/profile/profile';
 
 const Dashboard = () => {
   return (

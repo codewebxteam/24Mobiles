@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, ArrowRight, Github, Eye, EyeOff } from 'lucide-react';
-import { useAuth, isAdminEmail } from '../../context/AuthContext';
+import { useAuth, isAdminEmail } from '@/context/AuthContext';
 
 const Login = () => {
     const router = useRouter();

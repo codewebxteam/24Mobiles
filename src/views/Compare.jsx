@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Plus, Layers, ArrowRight, X, CheckCircle2, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { db } from '../firebase';
+import { db } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 const Compare = () => {

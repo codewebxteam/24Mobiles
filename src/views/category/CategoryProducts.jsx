@@ -7,9 +7,9 @@ import React, { useState, useEffect } from 'react';
 
 import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles, SlidersHorizontal, Package, AlertTriangle, ShieldCheck, Truck, Percent, Headset, LayoutGrid } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
-import ProductCard from '../../components/product/ProductCard';
+import ProductCard from '@/components/product/ProductCard';
 
 const CategoryProducts = () => {
     const { categoryPath } = useParams();

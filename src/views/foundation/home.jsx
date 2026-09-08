@@ -1,8 +1,8 @@
 import React from 'react';
-import Hero from '../../components/foundation/home/hero';
-import HomeCategories from '../category/Categories';
-import FeaturedProducts from '../../components/foundation/home/FeaturedProducts';
-import HomeNews from '../../components/foundation/home/HomeNews';
+import Hero from '@/components/foundation/home/hero';
+import HomeCategories from '@/views/category/Categories';
+import FeaturedProducts from '@/components/foundation/home/FeaturedProducts';
+import HomeNews from '@/components/foundation/home/HomeNews';
 
 const Home = () => {
   return (

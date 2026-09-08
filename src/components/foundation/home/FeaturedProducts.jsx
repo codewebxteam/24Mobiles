@@ -5,10 +5,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 
-import { db } from '../../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
-import ProductCard from '../../product/ProductCard';
+import ProductCard from '@/components/product/ProductCard';
 
 const FeaturedProducts = () => {
     const [products, setProducts] = useState([]);

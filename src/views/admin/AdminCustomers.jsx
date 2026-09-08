@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Search, MoreVertical, Eye, Mail, Download, Filter, Calendar, ChevronDown, Ban, AlertCircle, UserPlus, AlertTriangle } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '@/firebase';
 import { collection, onSnapshot, doc, updateDoc, addDoc } from 'firebase/firestore';
-import UserAvatar from '../../components/common/UserAvatar';
+import UserAvatar from '@/components/common/UserAvatar';
 
 const AdminCustomers = () => {
     const [customers, setCustomers] = useState([]);
