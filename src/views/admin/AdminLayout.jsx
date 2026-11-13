@@ -39,20 +39,9 @@ const AdminLayout = ({children}) => {
         }
     }, [user, loading, isLoginPage, navigate]);
 
-    if (loading) {
-        return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-amber-500 font-bold">Loading Admin...</div>;
-    }
-
-    if (isLoginPage) {
-        return <>{children}</>;
-    }
-
-    if (!user) {
-        return null;
-    }
-
     // Fetch data for search
     useEffect(() => {
+        if (!user || isLoginPage) return;
         const productsRef = collection(db, 'products');
         const unsubProducts = onSnapshot(productsRef, (snap) => {
             setAllProducts(snap.docs.map(doc => ({
@@ -63,7 +52,7 @@ const AdminLayout = ({children}) => {
         });
 
         return () => unsubProducts();
-    }, []);
+    }, [user, isLoginPage]);
 
     // Search logic
     useEffect(() => {
@@ -95,6 +84,18 @@ const AdminLayout = ({children}) => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    if (loading) {
+        return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-amber-500 font-bold">Loading Admin...</div>;
+    }
+
+    if (isLoginPage) {
+        return <>{children}</>;
+    }
+
+    if (!user) {
+        return null;
+    }
 
     const handleSearchItemClick = (item) => {
         navigate.push('/admin?tab=inventory');

@@ -37,7 +37,7 @@ const ShopByBudget = () => {
 
                 {/* Horizontal Scroll on Mobile, 5-col Grid on Desktop */}
                 <div className="flex sm:grid sm:grid-cols-5 gap-2 sm:gap-3.5 overflow-x-auto hide-scrollbar no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-1 sm:pb-0 snap-x">
-                    {BUDGET_RANGES.map((range, idx) => (
+                    {BUDGET_RANGES.map((range) => (
                         <motion.div
                             key={range.id}
                             whileHover={{ y: -2, scale: 1.01 }}

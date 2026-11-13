@@ -26,7 +26,6 @@ const CategoryProductsContent = () => {
     const searchParams = useSearchParams();
 
     const [allRawProducts, setAllRawProducts] = useState([]);
-    const [categoryName, setCategoryName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [syncError, setSyncError] = useState(null);
     const [categories, setCategories] = useState([]);
@@ -97,30 +96,29 @@ const CategoryProductsContent = () => {
     const baseCategoryProducts = useMemo(() => {
         const currentPath = categoryPath || pathname.split('/').pop();
         if (!currentPath || currentPath === 'products') {
-            setCategoryName('All Brands');
             return allRawProducts;
         }
 
-        const filtered = allRawProducts.filter(p => {
+        return allRawProducts.filter(p => {
             const prodCat = (p.category || '').toLowerCase().trim();
             const pathName = currentPath.toLowerCase().trim();
             const prodSlug = prodCat.replace(/[^a-z0-9]+/g, '_');
             const pathSlug = pathName.replace(/[^a-z0-9]+/g, '_');
             return prodSlug === pathSlug || prodCat === pathName;
         });
-
-        if (filtered.length > 0) {
-            setCategoryName(filtered[0].category || filtered[0].brand || currentPath);
-        } else {
-            const name = currentPath
-                .split(/[-_]/)
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
-            setCategoryName(name);
-        }
-
-        return filtered;
     }, [categoryPath, pathname, allRawProducts]);
+
+    const categoryName = useMemo(() => {
+        const currentPath = categoryPath || pathname.split('/').pop();
+        if (!currentPath || currentPath === 'products') return 'All Brands';
+        if (baseCategoryProducts.length > 0) {
+            return baseCategoryProducts[0].category || baseCategoryProducts[0].brand || currentPath;
+        }
+        return currentPath
+            .split(/[-_]/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }, [categoryPath, pathname, baseCategoryProducts]);
 
     // Extract dynamic series list with counts from products
     const seriesList = useMemo(() => {
