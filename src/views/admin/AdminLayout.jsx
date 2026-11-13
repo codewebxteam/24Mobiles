@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { db } from '@/firebase';
 import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import {
@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLayout = ({children}) => {
     const navigate = useRouter();
-    const location = { pathname: usePathname(), search: useSearchParams().toString() };
+    const location = { pathname: usePathname() };
     const { user, loading, logout } = useAuth();
     const isLoginPage = location.pathname === '/admin/login';
     

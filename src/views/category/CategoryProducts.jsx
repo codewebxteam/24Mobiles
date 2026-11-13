@@ -1,35 +1,65 @@
 "use client";
-import { useParams } from 'next/navigation';
-import { usePathname, useSearchParams } from 'next/navigation';
-
-import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
-
-import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, SlidersHorizontal, Package, AlertTriangle, ShieldCheck, Truck, Percent, Headset, LayoutGrid } from 'lucide-react';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Sparkles, SlidersHorizontal, Package, AlertTriangle, X, RotateCcw, ArrowUpDown, LayoutGrid } from 'lucide-react';
 import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 import ProductCard from '@/components/product/ProductCard';
+import ProductSkeleton from '@/components/product/ProductSkeleton';
+import ProductFilterDrawer from '@/components/product/ProductFilterDrawer';
+import { 
+    filterProducts, 
+    sortProducts, 
+    BUDGET_RANGES, 
+    NETWORK_OPTIONS, 
+    FEATURE_OPTIONS, 
+    RAM_OPTIONS, 
+    DEAL_OPTIONS, 
+    SORT_OPTIONS 
+} from '@/utils/filterUtils';
 
-const CategoryProducts = () => {
+const CategoryProductsContent = () => {
     const { categoryPath } = useParams();
     const navigate = useRouter();
-    const location = { pathname: usePathname(), search: useSearchParams().toString() };
-    const [products, setProducts] = useState([]);
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const [allRawProducts, setAllRawProducts] = useState([]);
     const [categoryName, setCategoryName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [syncError, setSyncError] = useState(null);
-
     const [categories, setCategories] = useState([]);
+    const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
-    // ==========================================
-    // LOGIC 100% UNTOUCHED (Exact as provided)
-    // ==========================================
+    // Filter State (read initial values from URL query parameters)
+    const [filters, setFilters] = useState({
+        budget: searchParams?.get('budget') || '',
+        network: searchParams?.get('network') || '',
+        feature: searchParams?.get('feature') || '',
+        series: searchParams?.get('series') || '',
+        deal: searchParams?.get('deal') || (searchParams?.get('deals') === 'true' ? 'any_deal' : ''),
+        ram: searchParams?.get('ram') || '',
+        sortBy: searchParams?.get('sort') || 'featured'
+    });
+
+    // Sync state with URL params when URL changes
     useEffect(() => {
-        const currentPath = categoryPath || location.pathname.split('/').pop();
+        if (!searchParams) return;
+        setFilters(prev => ({
+            ...prev,
+            budget: searchParams.get('budget') || '',
+            network: searchParams.get('network') || '',
+            feature: searchParams.get('feature') || '',
+            series: searchParams.get('series') || '',
+            deal: searchParams.get('deal') || (searchParams.get('deals') === 'true' ? 'any_deal' : ''),
+            ram: searchParams.get('ram') || '',
+            sortBy: searchParams.get('sort') || prev.sortBy || 'featured'
+        }));
+    }, [searchParams]);
 
-        if (!currentPath) return;
-
+    // Fetch Products and Categories from Firestore
+    useEffect(() => {
         const productsRef = collection(db, 'products');
         const safetyTimeout = setTimeout(() => {
             setIsLoading(false);
@@ -37,49 +67,12 @@ const CategoryProducts = () => {
 
         const unsubscribe = onSnapshot(productsRef, (snap) => {
             clearTimeout(safetyTimeout);
-            const allProducts = snap.docs.map(doc => ({
+            const list = snap.docs.map(doc => ({
                 ...doc.data(),
                 firebaseId: doc.id,
-                id: doc.id // Essential for components using .id
+                id: doc.id
             }));
-
-            // Filter products by category mapping
-            let filtered = [];
-            if (currentPath === 'products') {
-                filtered = allProducts;
-                setCategoryName('All Brands');
-            } else {
-                filtered = allProducts.filter(p => {
-                    const prodCat = (p.category || '').toLowerCase().trim();
-                    const pathName = currentPath.toLowerCase().trim();
-
-                    const prodSlug = prodCat.replace(/[^a-z0-9]+/g, '_');
-                    const pathSlug = pathName.replace(/[^a-z0-9]+/g, '_');
-
-                    // Standard slug match or direct string match
-                    const isDirectMatch = prodSlug === pathSlug || prodCat === pathName;
-
-                    // Specific legacy/alias matches
-                    const isVegMatch = (pathSlug === 'vegetables' && prodSlug === 'veg') || (pathSlug === 'veg' && prodSlug === 'vegetables');
-                    const isPersonalCareMatch = (pathSlug === 'personal_care' && prodSlug === 'personal_care');
-                    const isDryFruitsMatch = (pathSlug === 'dry_fruits' && prodSlug === 'dry_fruits');
-
-                    return isDirectMatch || isVegMatch || isPersonalCareMatch || isDryFruitsMatch;
-                });
-
-                // Set the readable category name
-                if (filtered.length > 0) {
-                    setCategoryName(filtered[0].category || filtered[0].brand || currentPath);
-                } else {
-                    const name = currentPath
-                        .split(/[-_]/)
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(' ');
-                    setCategoryName(name);
-                }
-            }
-
-            setProducts(filtered);
+            setAllRawProducts(list);
             setIsLoading(false);
         }, (err) => {
             clearTimeout(safetyTimeout);
@@ -88,11 +81,9 @@ const CategoryProducts = () => {
             setIsLoading(false);
         });
 
-        // Fetch categories for slider
         const categoriesRef = collection(db, 'categories');
         const unsubC = onSnapshot(categoriesRef, (snap) => {
             const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // Filter out hidden categories
             setCategories(data.filter(c => c.status !== 'Hidden').sort((a,b) => a.name.localeCompare(b.name)));
         });
 
@@ -100,7 +91,131 @@ const CategoryProducts = () => {
             unsubscribe();
             unsubC();
         };
-    }, [categoryPath, location.pathname]);
+    }, []);
+
+    // 1. Base Category / Brand Filtering
+    const baseCategoryProducts = useMemo(() => {
+        const currentPath = categoryPath || pathname.split('/').pop();
+        if (!currentPath || currentPath === 'products') {
+            setCategoryName('All Brands');
+            return allRawProducts;
+        }
+
+        const filtered = allRawProducts.filter(p => {
+            const prodCat = (p.category || '').toLowerCase().trim();
+            const pathName = currentPath.toLowerCase().trim();
+            const prodSlug = prodCat.replace(/[^a-z0-9]+/g, '_');
+            const pathSlug = pathName.replace(/[^a-z0-9]+/g, '_');
+            return prodSlug === pathSlug || prodCat === pathName;
+        });
+
+        if (filtered.length > 0) {
+            setCategoryName(filtered[0].category || filtered[0].brand || currentPath);
+        } else {
+            const name = currentPath
+                .split(/[-_]/)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            setCategoryName(name);
+        }
+
+        return filtered;
+    }, [categoryPath, pathname, allRawProducts]);
+
+    // Extract dynamic series list with counts from products
+    const seriesList = useMemo(() => {
+        const counts = {};
+        allRawProducts.forEach(p => {
+            const hl = (p.highlights || '').trim();
+            if (hl && hl.length > 2) {
+                counts[hl] = (counts[hl] || 0) + 1;
+            }
+        });
+        return Object.entries(counts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+    }, [allRawProducts]);
+
+    // 2. Apply All 6 Dimensions of Filters
+    const finalFilteredProducts = useMemo(() => {
+        const filtered = filterProducts(baseCategoryProducts, filters);
+        return sortProducts(filtered, filters.sortBy);
+    }, [baseCategoryProducts, filters]);
+
+    // Count how many filters are active
+    const activeFilterCount = useMemo(() => {
+        let count = 0;
+        if (filters.budget) count++;
+        if (filters.network) count++;
+        if (filters.feature) count++;
+        if (filters.series) count++;
+        if (filters.deal) count++;
+        if (filters.ram) count++;
+        return count;
+    }, [filters]);
+
+    // Handler to update individual filter and URL
+    const handleFilterChange = (key, value) => {
+        const nextFilters = { ...filters, [key]: value };
+        setFilters(nextFilters);
+
+        // Update URL query string shallowly
+        const params = new URLSearchParams();
+        if (nextFilters.budget) params.set('budget', nextFilters.budget);
+        if (nextFilters.network) params.set('network', nextFilters.network);
+        if (nextFilters.feature) params.set('feature', nextFilters.feature);
+        if (nextFilters.series) params.set('series', nextFilters.series);
+        if (nextFilters.deal) params.set('deal', nextFilters.deal);
+        if (nextFilters.ram) params.set('ram', nextFilters.ram);
+        if (nextFilters.sortBy && nextFilters.sortBy !== 'featured') params.set('sort', nextFilters.sortBy);
+
+        const qs = params.toString();
+        const targetPath = categoryPath ? `/category/${categoryPath}` : '/products';
+        navigate.replace(`${targetPath}${qs ? `?${qs}` : ''}`);
+    };
+
+    const handleResetFilters = () => {
+        setFilters({
+            budget: '',
+            network: '',
+            feature: '',
+            series: '',
+            deal: '',
+            ram: '',
+            sortBy: 'featured'
+        });
+        const targetPath = categoryPath ? `/category/${categoryPath}` : '/products';
+        navigate.replace(targetPath);
+    };
+
+    // Human-friendly labels for active chips
+    const activeChips = useMemo(() => {
+        const chips = [];
+        if (filters.budget) {
+            const b = BUDGET_RANGES.find(r => r.id === filters.budget);
+            chips.push({ key: 'budget', label: b ? b.shortLabel : filters.budget });
+        }
+        if (filters.network) {
+            const n = NETWORK_OPTIONS.find(o => o.id === filters.network);
+            chips.push({ key: 'network', label: n ? n.shortLabel : filters.network.toUpperCase() });
+        }
+        if (filters.feature) {
+            const f = FEATURE_OPTIONS.find(o => o.id === filters.feature);
+            chips.push({ key: 'feature', label: f ? f.shortLabel : filters.feature });
+        }
+        if (filters.series) {
+            chips.push({ key: 'series', label: filters.series });
+        }
+        if (filters.deal) {
+            const d = DEAL_OPTIONS.find(o => o.id === filters.deal);
+            chips.push({ key: 'deal', label: d ? d.label : 'Discounted' });
+        }
+        if (filters.ram) {
+            const r = RAM_OPTIONS.find(o => o.id === filters.ram);
+            chips.push({ key: 'ram', label: r ? r.label : filters.ram });
+        }
+        return chips;
+    }, [filters]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -113,12 +228,18 @@ const CategoryProducts = () => {
             <div className="max-w-[1440px] mx-auto px-2 sm:px-8 lg:px-16 mt-2 sm:mt-4 relative z-10">
 
                 {/* Horizontal Brands Slider (Shop by Brand) */}
-                <div className="mb-2 sm:mb-8">
-                    <h3 className="text-base sm:text-xl font-black text-slate-900 mb-2 px-1 tracking-tight">Shop by Brand</h3>
-                    <div className="flex gap-2 sm:gap-6 overflow-x-auto custom-scrollbar pb-2 px-1">
+                <div className="mb-4 sm:mb-6">
+                    <div className="flex items-center justify-between mb-2 px-1">
+                        <h3 className="text-sm sm:text-lg font-black text-slate-900 tracking-tight">Shop by Brand</h3>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-500">{categories.length} Brands Available</span>
+                    </div>
+                    <div className="flex gap-2 sm:gap-6 overflow-x-auto hide-scrollbar no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-2 px-1">
                         {/* All Brands Circle */}
                         <button 
-                            onClick={() => navigate.push('/products')}
+                            onClick={() => {
+                                handleResetFilters();
+                                navigate.push('/products');
+                            }}
                             className="flex flex-col items-center gap-1 min-w-[60px] sm:min-w-[80px] shrink-0 group outline-none"
                         >
                             <div className={`w-12 h-12 sm:w-20 sm:h-20 rounded-full border-2 flex items-center justify-center transition-all ${(!categoryPath || categoryPath === 'products') ? 'border-amber-500 bg-white shadow-md scale-105' : 'border-slate-200 bg-white group-hover:border-slate-300'}`}>
@@ -153,71 +274,125 @@ const CategoryProducts = () => {
                     </div>
                 </div>
 
-                {/* ====== Header Section ====== */}
-                <header className="mb-4 sm:mb-10 px-1">
-                    <div className="flex flex-row items-end justify-between gap-2 pb-3 sm:pb-6 border-b border-slate-200">
+                {/* ====== Header Section & Filter Control Bar ====== */}
+                <header className="mb-4 sm:mb-6 px-1">
+                    <div className="flex flex-row items-end justify-between gap-2 pb-3 sm:pb-4 border-b border-slate-200">
                         <div>
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest mb-1 sm:mb-3 border border-amber-200"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest mb-1 sm:mb-2 border border-amber-200"
                             >
                                 <Sparkles size={10} className="sm:w-3 sm:h-3" />
-                                Smartphone Database
+                                Smartphone Catalog
                             </motion.div>
                             
                             <motion.h1
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="text-2xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-none capitalize"
+                                className="text-xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-none capitalize"
                             >
                                 {categoryName}
                             </motion.h1>
                         </div>
 
+                        {/* Controls on Right: Sort & Filter Button */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="flex flex-col items-end gap-2"
+                            className="flex items-center gap-2"
                         >
-                            <div className="text-right">
-                                <p className="text-[8px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-widest hidden sm:block">Phones Tracked</p>
-                                <p className="text-xs sm:text-xl font-black tracking-tight text-amber-600">
-                                    {isLoading ? '...' : `${products.length} Models`}
-                                </p>
+                            {/* Sort Selector */}
+                            <div className="relative hidden sm:block">
+                                <select
+                                    value={filters.sortBy}
+                                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                                    className="bg-white border border-slate-200 text-slate-700 text-xs font-bold py-2.5 px-3 pr-8 rounded-xl outline-none focus:border-amber-500 cursor-pointer shadow-sm appearance-none"
+                                >
+                                    {SORT_OPTIONS.map(opt => (
+                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                    ))}
+                                </select>
+                                <ArrowUpDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                             </div>
-                            
+
+                            {/* Filter Trigger Button */}
                             <button 
-                                className="p-2 sm:p-3.5 bg-white text-slate-900 rounded-lg sm:rounded-xl hover:bg-slate-50 transition-all shadow-sm hover:shadow-md active:scale-95 flex items-center gap-1 border border-slate-200"
+                                onClick={() => setIsFilterDrawerOpen(true)}
+                                className={`p-2 sm:px-4 sm:py-2.5 rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1.5 border ${
+                                    activeFilterCount > 0 
+                                        ? 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20' 
+                                        : 'bg-white text-slate-900 hover:bg-slate-50 border-slate-200'
+                                }`}
                                 title="Filter Catalog"
                             >
-                                <SlidersHorizontal size={14} className="sm:w-[18px] sm:h-[18px]" />
-                                <span className="text-[9px] sm:text-xs font-bold uppercase tracking-wider hidden sm:inline">Filter</span>
+                                <SlidersHorizontal size={14} className="sm:w-4 sm:h-4" />
+                                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                                    Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+                                </span>
                             </button>
                         </motion.div>
+                    </div>
+
+                    {/* Active Filter Chips Bar */}
+                    {activeChips.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3 pt-1">
+                            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                                Applied:
+                            </span>
+                            {activeChips.map(chip => (
+                                <button
+                                    key={chip.key}
+                                    onClick={() => handleFilterChange(chip.key, '')}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-[10px] sm:text-xs font-bold border border-amber-200 transition-colors group"
+                                >
+                                    <span>{chip.label}</span>
+                                    <X size={12} className="text-amber-600 group-hover:scale-110" />
+                                </button>
+                            ))}
+                            <button
+                                onClick={handleResetFilters}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-slate-500 hover:text-rose-600 text-[10px] sm:text-xs font-bold transition-colors ml-1"
+                            >
+                                <RotateCcw size={11} />
+                                Clear All
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Devices Count Status */}
+                    <div className="mt-2 text-right">
+                        <span className="text-[9px] sm:text-[11px] font-bold text-slate-500">
+                            Showing <strong className="text-amber-600">{finalFilteredProducts.length}</strong> {finalFilteredProducts.length === 1 ? 'phone' : 'phones'}
+                        </span>
                     </div>
                 </header>
 
                 {/* ====== Products Grid ====== */}
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-16 sm:py-32">
-                        <div className="w-32 h-16 sm:w-40 sm:h-20 mb-4 animate-pulse">
-                            <img src="/phones/gemini-svg.svg" alt="Loading" className="w-full h-full object-contain" />
-                        </div>
-                        <span className="text-amber-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest animate-pulse">
-                            Loading Phones...
-                        </span>
+                    <div className="flex flex-wrap justify-center gap-1.5 sm:gap-6 lg:gap-8 px-1 sm:px-0 animate-pulse">
+                        {[...Array(8)].map((_, idx) => (
+                            <div
+                                key={idx}
+                                className="w-[calc(33.333%-4px)] sm:w-[calc(33.333%-16px)] lg:w-[calc(25%-24px)] min-w-[100px] max-w-[280px] bg-white rounded-2xl border border-slate-100 p-3 sm:p-4 space-y-3"
+                            >
+                                <div className="aspect-[4/5] bg-slate-200 rounded-xl w-full" />
+                                <div className="h-3 bg-slate-200 rounded-full w-1/2" />
+                                <div className="h-4 bg-slate-200 rounded-full w-4/5" />
+                                <div className="h-4 bg-slate-200 rounded-full w-2/5" />
+                            </div>
+                        ))}
                     </div>
-                ) : products.length > 0 ? (
+                ) : finalFilteredProducts.length > 0 ? (
                     <div className="flex flex-wrap justify-center gap-1.5 sm:gap-6 lg:gap-8 px-1 sm:px-0">
-                        {products.map((product, idx) => (
+                        {finalFilteredProducts.map((product, idx) => (
                             <motion.div
                                 key={product.firebaseId || product.id}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.4, delay: idx * 0.05 }}
+                                transition={{ duration: 0.4, delay: Math.min(idx * 0.03, 0.5) }}
                                 className="w-[calc(33.333%-4px)] sm:w-[calc(33.333%-16px)] lg:w-[calc(25%-24px)] min-w-[100px] max-w-[280px]"
                             >
                                 <ProductCard product={product} />
@@ -228,28 +403,47 @@ const CategoryProducts = () => {
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-3xl p-8 shadow-sm border border-slate-200 max-w-2xl mx-auto"
+                        className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl p-8 shadow-sm border border-slate-200 max-w-2xl mx-auto"
                     >
-                        <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-6 shadow-inner">
-                            <Package size={36} />
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 mb-4 shadow-inner">
+                            <Package size={32} />
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2">
                             No Phones Found
                         </h2>
-                        <p className="text-slate-600 font-medium max-w-md mx-auto text-sm sm:text-base leading-relaxed">
-                            We are updating our database for <strong>{categoryName}</strong>. Please check back shortly for fresh specs and deals!
+                        <p className="text-slate-600 font-medium max-w-md mx-auto text-xs sm:text-sm leading-relaxed mb-6">
+                            No smartphones match your current filter combination. Try clearing some filters or exploring all devices.
                         </p>
-                        <button
-                            onClick={() => navigate.push('/categories')}
-                            className="mt-8 px-8 py-3.5 bg-amber-500 text-white rounded-full text-xs font-black uppercase tracking-wider hover:bg-amber-400 transition-all shadow-md active:scale-95"
-                        >
-                            Explore Other Brands
-                        </button>
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                            <button
+                                onClick={handleResetFilters}
+                                className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-white rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95"
+                            >
+                                Reset All Filters
+                            </button>
+                            <button
+                                onClick={() => navigate.push('/categories')}
+                                className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-95"
+                            >
+                                Browse Brands
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </div>
 
-            {/* ====== ERROR DIAGNOSTICS MODAL (Untouched UI matched to Theme) ====== */}
+            {/* Filter Drawer / Modal */}
+            <ProductFilterDrawer
+                isOpen={isFilterDrawerOpen}
+                onClose={() => setIsFilterDrawerOpen(false)}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
+                totalMatchingCount={finalFilteredProducts.length}
+                seriesList={seriesList}
+            />
+
+            {/* ====== ERROR DIAGNOSTICS MODAL ====== */}
             {syncError && (
                 <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSyncError(null)}></div>
@@ -259,7 +453,7 @@ const CategoryProducts = () => {
                                 <AlertTriangle size={24} strokeWidth={2.5} />
                             </div>
                             <div>
-                                <h2 style={{ fontFamily: "'Recoleta', Georgia, serif" }} className="text-xl font-bold text-slate-900 leading-tight">
+                                <h2 className="text-xl font-bold text-slate-900 leading-tight">
                                     Catalog Sync Issue
                                 </h2>
                                 <p className="text-xs font-bold text-slate-500 mt-0.5 uppercase tracking-widest">
@@ -272,35 +466,9 @@ const CategoryProducts = () => {
                             {syncError.message}
                         </div>
 
-                        {(syncError.message?.toLowerCase().includes('permission') || syncError.code === 'permission-denied') && (
-                            <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-6">
-                                <p className="text-xs font-bold text-amber-800 mb-2 uppercase tracking-wide">
-                                    Action Required: Fix Firebase Rules
-                                </p>
-                                <ol className="text-xs font-semibold text-slate-600 list-decimal pl-4 space-y-2">
-                                    <li>Open your <a href="https://console.firebase.google.com/" target="_blank" rel="noreferrer" className="text-[#27318a] underline">Firebase Console</a></li>
-                                    <li>Go to <span className="font-bold">Firestore Database Rules</span></li>
-                                    <li>Ensure rules allow public read/write if you don't have auth configured yet:
-                                        <pre className="bg-slate-900 text-[#fce513] p-2.5 rounded-xl mt-1.5 overflow-x-auto font-mono text-[10px]">
-                                            {`rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}`}
-                                        </pre>
-                                    </li>
-                                    <li>Click <span className="font-bold text-[#27318a]">Publish</span></li>
-                                </ol>
-                            </div>
-                        )}
-
                         <button
                             onClick={() => window.location.reload()}
-                            style={{ backgroundColor: '#27318a' }}
-                            className="w-full text-white py-4 rounded-full font-bold text-xs uppercase tracking-wider transition-all shadow-xl active:scale-95 hover:opacity-90"
+                            className="w-full bg-[#27318a] text-white py-4 rounded-full font-bold text-xs uppercase tracking-wider transition-all shadow-xl active:scale-95 hover:opacity-90"
                         >
                             Retry Connection
                         </button>
@@ -308,6 +476,14 @@ service cloud.firestore {
                 </div>
             )}
         </div>
+    );
+};
+
+const CategoryProducts = () => {
+    return (
+        <Suspense fallback={<ProductSkeleton />}>
+            <CategoryProductsContent />
+        </Suspense>
     );
 };
 

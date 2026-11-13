@@ -33,11 +33,23 @@ export default function NewsArticlePage({ params }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center pt-20">
-                <div className="w-20 h-20 mb-4 animate-pulse">
-                     <img src="/phones/gemini-svg.svg" alt="Loading" className="w-full h-full object-contain" />
+            <div className="min-h-screen bg-slate-50 pt-[70px] sm:pt-[80px] pb-12 font-['Montserrat',sans-serif]">
+                <div className="max-w-[800px] mx-auto px-4 sm:px-8 animate-pulse">
+                    <div className="w-28 h-4 bg-slate-200 rounded-full mb-6 sm:mb-8" />
+                    <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden">
+                        <div className="aspect-[16/9] w-full bg-slate-200" />
+                        <div className="p-6 sm:p-10 space-y-4">
+                            <div className="w-32 h-3 bg-slate-200 rounded-full" />
+                            <div className="w-full h-8 bg-slate-200 rounded-2xl" />
+                            <div className="w-2/3 h-8 bg-slate-200 rounded-2xl" />
+                            <div className="space-y-2 pt-4">
+                                <div className="w-full h-4 bg-slate-100 rounded-full" />
+                                <div className="w-full h-4 bg-slate-100 rounded-full" />
+                                <div className="w-4/5 h-4 bg-slate-100 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <span className="text-amber-600 font-bold uppercase tracking-widest text-sm animate-pulse">Loading Article...</span>
             </div>
         );
     }

@@ -67,11 +67,10 @@ const Compare = () => {
     const renderPhoneSlot = (phoneData, isLoading, target, title) => {
         if (isLoading) {
             return (
-                <div className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-8 flex flex-col items-center justify-center min-h-[250px] sm:min-h-[300px]">
-                    <div className="w-24 h-12 mb-4 animate-pulse">
-                        <img src="/phones/gemini-svg.svg" alt="Loading" className="w-full h-full object-contain" />
-                    </div>
-                    <span className="text-amber-600 font-bold text-sm">Loading...</span>
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[250px] sm:min-h-[300px] animate-pulse space-y-4">
+                    <div className="h-32 sm:h-48 w-3/4 bg-slate-200 rounded-2xl" />
+                    <div className="h-4 w-2/3 bg-slate-200 rounded-full" />
+                    <div className="h-6 w-1/3 bg-slate-200 rounded-full" />
                 </div>
             );
         }

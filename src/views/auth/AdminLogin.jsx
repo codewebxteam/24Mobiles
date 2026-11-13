@@ -1,14 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { usePathname, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, ShieldAlert, ArrowRight, Home, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const AdminLogin = () => {
     const navigate = useRouter();
-    const location = { pathname: usePathname(), search: useSearchParams().toString() };
     const { user, login, signup, loading } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

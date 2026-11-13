@@ -15,10 +15,11 @@ const Categories = ({ isHome = false, onLoaded }) => {
     const [showAll, setShowAll] = useState(false);
     
     // Updated limit to 8 for desktop so it forms perfect 2 rows of 4 columns
-    const [visibleLimit, setVisibleLimit] = useState(window.innerWidth >= 1024 ? 8 : 6);
+    const [visibleLimit, setVisibleLimit] = useState(6);
 
     useEffect(() => {
         const handleResize = () => setVisibleLimit(window.innerWidth >= 1024 ? 8 : 6);
+        handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -94,14 +95,30 @@ const Categories = ({ isHome = false, onLoaded }) => {
     if (isLoading) {
         if (isHome) return null;
         return (
-            <div className={`flex items-center justify-center min-h-[40vh] bg-slate-50`}>
-                <span className="text-amber-600 font-bold uppercase tracking-widest text-sm animate-pulse">Loading Brands...</span>
+            <div className="bg-slate-50 min-h-screen pt-[70px] sm:pt-[80px] pb-12 font-['Montserrat',sans-serif]">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-8 animate-pulse">
+                    <div className="flex items-center gap-3 mb-6 border-b border-slate-200/60 pb-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 shrink-0" />
+                        <div className="space-y-2">
+                            <div className="w-28 h-4 bg-slate-200 rounded-full" />
+                            <div className="w-44 h-3 bg-slate-200 rounded-full" />
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-6 sm:gap-8 justify-start">
+                        {[...Array(10)].map((_, idx) => (
+                            <div key={idx} className="flex flex-col items-center gap-3 shrink-0 w-[72px] sm:w-[100px]">
+                                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-slate-200" />
+                                <div className="w-14 h-3 bg-slate-200 rounded-full" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className={`bg-slate-50 ${isHome ? 'py-2 sm:py-4' : 'min-h-screen pt-[70px] sm:pt-[80px] pb-12'} font-['Montserrat',sans-serif]`}>
+        <div className={`bg-slate-50 ${isHome ? 'py-1.5 sm:py-2.5' : 'min-h-screen pt-[70px] sm:pt-[80px] pb-12'} font-['Montserrat',sans-serif]`}>
             <div className="max-w-[1440px] mx-auto">
                 
                 {isHome ? (
@@ -116,7 +133,7 @@ const Categories = ({ isHome = false, onLoaded }) => {
                         </div>
 
                         {/* Horizontal Scroll List */}
-                        <div className="flex overflow-x-auto gap-3 sm:gap-6 px-4 sm:px-8 pb-2 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div className="flex overflow-x-auto hide-scrollbar no-scrollbar gap-3 sm:gap-6 px-4 sm:px-8 pb-1.5 sm:pb-2 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {finalCategories.slice(0, 10).map((cat) => (
                                 <div 
                                     key={cat.id} 

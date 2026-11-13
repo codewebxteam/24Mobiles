@@ -12,3 +12,17 @@ body {
 .font-serif {
   font-family: var(--font-serif);
 }
+
+/* Hide scrollbar for Chrome, Safari, Edge, Firefox, and mobile browsers */
+.hide-scrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.hide-scrollbar,
+.no-scrollbar {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+}

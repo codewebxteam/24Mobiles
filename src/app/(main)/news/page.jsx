@@ -67,11 +67,34 @@ export default function NewsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center pt-20">
-                <div className="w-20 h-20 mb-4 animate-pulse">
-                     <img src="/phones/gemini-svg.svg" alt="Loading" className="w-full h-full object-contain" />
+            <div className="min-h-screen bg-slate-50 pt-[70px] sm:pt-[80px] pb-12 font-['Montserrat',sans-serif]">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-8 animate-pulse">
+                    <div className="flex items-center gap-3 mb-6 border-b border-slate-200/60 pb-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-200 shrink-0" />
+                        <div className="space-y-2">
+                            <div className="w-28 h-4 bg-slate-200 rounded-full" />
+                            <div className="w-48 h-3 bg-slate-200 rounded-full" />
+                        </div>
+                    </div>
+                    <div className="flex gap-2 mb-6 pb-2">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="w-20 h-8 bg-slate-200 rounded-full shrink-0" />
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                        {[...Array(8)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-[1.5rem] overflow-hidden border border-slate-100">
+                                <div className="aspect-[16/9] bg-slate-200 w-full" />
+                                <div className="p-4 sm:p-5 space-y-3">
+                                    <div className="w-24 h-3 bg-slate-200 rounded-full" />
+                                    <div className="w-full h-4 bg-slate-200 rounded-full" />
+                                    <div className="w-3/4 h-4 bg-slate-200 rounded-full" />
+                                    <div className="w-full h-10 bg-slate-100 rounded-xl mt-4" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <span className="text-amber-600 font-bold uppercase tracking-widest text-sm animate-pulse">Loading News...</span>
             </div>
         );
     }

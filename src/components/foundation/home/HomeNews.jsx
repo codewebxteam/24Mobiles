@@ -34,11 +34,11 @@ const HomeNews = ({ onLoaded }) => {
     }
 
     return (
-        <section className="py-2 sm:py-4 bg-slate-50 overflow-hidden font-['Montserrat',sans-serif]">
+        <section className="py-1.5 sm:py-2.5 bg-slate-50 overflow-hidden font-['Montserrat',sans-serif]">
             <div className="max-w-[1440px] mx-auto">
                 
                 {/* Compact Header (Matching Featured Products) */}
-                <div className="flex items-center justify-between px-4 sm:px-8 mb-3">
+                <div className="flex items-center justify-between px-4 sm:px-8 mb-2">
                     <h2 className="text-[11px] sm:text-[13px] font-black uppercase tracking-wider text-slate-900">Latest News</h2>
                     <button 
                         onClick={() => navigate.push('/news')} 
@@ -49,7 +49,7 @@ const HomeNews = ({ onLoaded }) => {
                 </div>
 
                 {/* News Horizontal Scroll */}
-                <div className="flex overflow-x-auto gap-3 sm:gap-6 px-4 sm:px-8 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="flex overflow-x-auto hide-scrollbar no-scrollbar gap-2.5 sm:gap-6 px-4 sm:px-8 pb-2 sm:pb-3 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {news.map((item) => (
                         <div 
                             key={item.id} 

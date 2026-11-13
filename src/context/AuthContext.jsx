@@ -10,7 +10,6 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import Loader from '@/components/common/Loader';
 
 export const isAdminEmail = (email) => {
     const adminEmails = ['24phonewala@gmail.com'];
@@ -39,10 +38,7 @@ export const AuthProvider = ({ children }) => {
         });
 
         const safetyTimeout = setTimeout(() => {
-            if (loading) {
-                console.warn("Auth initialization safety timeout reached.");
-                setLoading(false);
-            }
+            setLoading(false);
         }, 10000);
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -184,7 +180,7 @@ export const AuthProvider = ({ children }) => {
             openAuthModal,
             closeAuthModal
         }}>
-            {loading ? <Loader /> : children}
+            {children}
         </AuthContext.Provider>
     );
 };

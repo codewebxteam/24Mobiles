@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Home, Smartphone, Tags, Scale, Info, User, Search, X, ChevronRight, Menu, Newspaper } from 'lucide-react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 import throttle from 'lodash/throttle';
@@ -10,7 +10,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 
 const Header = () => {
   const navigate = useRouter();
-  const location = { pathname: usePathname(), search: useSearchParams().toString() };
+  const location = { pathname: usePathname() };
   const { scrollY } = useScroll();
 
   const [isScrolled, setIsScrolled] = useState(false);

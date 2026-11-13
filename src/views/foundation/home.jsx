@@ -4,6 +4,10 @@ import Hero from '@/components/foundation/home/hero';
 import HomeCategories from '@/views/category/Categories';
 import FeaturedProducts from '@/components/foundation/home/FeaturedProducts';
 import HomeNews from '@/components/foundation/home/HomeNews';
+import ShopByBudget from '@/components/foundation/home/ShopByBudget';
+import ShopByFeature from '@/components/foundation/home/ShopByFeature';
+import TopDealsSection from '@/components/foundation/home/TopDealsSection';
+import SeriesAndRamHub from '@/components/foundation/home/SeriesAndRamHub';
 
 const HomeSkeleton = () => (
   <div className="min-h-screen bg-slate-50 pt-[100px] px-4 sm:px-8 max-w-[1440px] mx-auto animate-pulse pb-20">
@@ -49,21 +53,38 @@ const Home = () => {
     }
   }, [isAllLoaded]);
 
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => setShowSkeleton(false), 5000);
+    return () => clearTimeout(fallbackTimer);
+  }, []);
+
   return (
     <>
       {showSkeleton && <HomeSkeleton />}
       
       <main className={`min-h-screen bg-slate-50 font-['Montserrat',sans-serif] ${showSkeleton ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 transition-opacity duration-500'}`}>
-        {/* 1. First Impression */}
+        {/* 1. First Impression: Carousel Banner */}
         <Hero />
 
-        {/* 2. Top Brands */}
+        {/* 2. Shop By Budget: Price Ranges (Under 10k, 10-20k, 20-35k, 35-50k, 50k+) */}
+        <ShopByBudget />
+
+        {/* 3. Shop By Need & Features (5G, Pro Camera, 6000mAh+, Gaming, AMOLED) */}
+        <ShopByFeature />
+
+        {/* 4. Top Brands */}
         <HomeCategories isHome={true} onLoaded={() => setLoadedFlags(p => ({ ...p, categories: true }))} />
 
-        {/* 3. Latest Phones */}
+        {/* 5. Top Deals & High Discounts */}
+        <TopDealsSection />
+
+        {/* 6. Latest Phones */}
         <FeaturedProducts onLoaded={() => setLoadedFlags(p => ({ ...p, products: true }))} />
 
-        {/* 4. Latest News */}
+        {/* 7. Popular Series & RAM Capacity Hub */}
+        <SeriesAndRamHub />
+
+        {/* 8. Latest News */}
         <HomeNews onLoaded={() => setLoadedFlags(p => ({ ...p, news: true }))} />
 
       </main>

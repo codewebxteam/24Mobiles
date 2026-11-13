@@ -36,7 +36,7 @@ const Hero = () => {
   }
 
   return (
-    <div className="w-full pt-[3.25rem] sm:pt-[4rem] pb-4 px-3 sm:px-8 max-w-[1440px] mx-auto">
+    <div className="w-full pt-[3.25rem] sm:pt-[4rem] pb-1.5 sm:pb-2.5 px-3 sm:px-8 max-w-[1440px] mx-auto">
       <section className="relative w-full aspect-[21/9] sm:aspect-[21/9] lg:aspect-[21/9] max-h-[800px] bg-slate-900 overflow-hidden rounded-[1.25rem] sm:rounded-3xl font-['Montserrat',sans-serif] shadow-lg">
         
         {/* Full-screen Background Slider */}

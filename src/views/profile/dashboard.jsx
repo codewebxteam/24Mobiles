@@ -1,7 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { motion } from 'framer-motion';
 import { User, ShoppingBag, ShoppingCart, Heart } from 'lucide-react';

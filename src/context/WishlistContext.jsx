@@ -3,12 +3,16 @@ import React, {
     useContext,
     useReducer,
     useEffect,
+    useRef,
 } from 'react';
 
 const WishlistContext = createContext();
 
 const wishlistReducer = (state, action) => {
     switch (action.type) {
+        case 'SET_WISHLIST':
+            return Array.isArray(action.payload) ? action.payload : [];
+
         case 'TOGGLE_WISHLIST': {
             const exists = state.find(
                 (item) =>
@@ -47,13 +51,26 @@ const wishlistReducer = (state, action) => {
 };
 
 export const WishlistProvider = ({ children }) => {
-    const [wishlistItems, dispatch] = useReducer(wishlistReducer, [], () => {
-        const saved = localStorage.getItem('gokulgorakhpur_wishlist');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [wishlistItems, dispatch] = useReducer(wishlistReducer, []);
+    const isHydrated = useRef(false);
 
-    // Persist wishlist
+    // Hydrate wishlist safely on client mount
     useEffect(() => {
+        try {
+            const saved = localStorage.getItem('gokulgorakhpur_wishlist');
+            if (saved) {
+                dispatch({ type: 'SET_WISHLIST', payload: JSON.parse(saved) });
+            }
+        } catch (error) {
+            console.warn('Failed to load wishlist from localStorage:', error);
+        } finally {
+            isHydrated.current = true;
+        }
+    }, []);
+
+    // Persist wishlist after initial hydration
+    useEffect(() => {
+        if (!isHydrated.current) return;
         localStorage.setItem('gokulgorakhpur_wishlist', JSON.stringify(wishlistItems));
     }, [wishlistItems]);
 

@@ -6,7 +6,7 @@ import useScrollLock from '@/hooks/useScrollLock';
 const ShareModal = ({ isOpen, onClose, product }) => {
     const [copied, setCopied] = useState(false);
     useScrollLock(isOpen);
-    const shareUrl = window.location.href;
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
     const shareText = `Check out this ${product?.name} on Neha Enterprises!`;
 
     const handleCopyLink = () => {

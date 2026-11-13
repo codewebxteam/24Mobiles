@@ -15,11 +15,12 @@ const Categories = () => {
     const [showAll, setShowAll] = useState(false);
     
     // Updated limit to 10 for desktop so it forms perfect 2 rows of 5 columns like screenshot
-    const [visibleLimit, setVisibleLimit] = useState(window.innerWidth >= 1024 ? 10 : 6);
+    const [visibleLimit, setVisibleLimit] = useState(6);
 
     // Update limit on resize
     useEffect(() => {
         const handleResize = () => setVisibleLimit(window.innerWidth >= 1024 ? 10 : 6);
+        handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -81,8 +82,15 @@ const Categories = () => {
 
     if (isLoading) {
         return (
-            <div className="bg-slate-50 py-16 text-center">
-                <span className="text-amber-600 font-black animate-pulse uppercase tracking-widest text-xs">Loading Brands...</span>
+            <div className="bg-slate-50 py-16 sm:py-20 font-['Montserrat',sans-serif]">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-8 animate-pulse">
+                    <div className="h-10 w-52 bg-slate-200 rounded-2xl mx-auto mb-12" />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+                        {[...Array(10)].map((_, i) => (
+                            <div key={i} className="aspect-square bg-slate-200 rounded-3xl" />
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }

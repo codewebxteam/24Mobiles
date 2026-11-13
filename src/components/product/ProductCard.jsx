@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Star, ChevronRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { db } from '@/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
-const ProductCard = ({ product }) => {
+const ProductCardContent = ({ product }) => {
     const navigate = useRouter();
     const searchParams = useSearchParams();
     const [realReviews, setRealReviews] = useState([]);
@@ -35,6 +35,12 @@ const ProductCard = ({ product }) => {
         ? (realReviews.reduce((sum, rev) => sum + (rev.rating || 5), 0) / realReviews.length).toFixed(1)
         : null;
 
+    const discountPercent = product.discount || (
+        product.originalPrice && product.price && Number(product.originalPrice) > Number(product.price)
+            ? Math.round(((Number(product.originalPrice) - Number(product.price)) / Number(product.originalPrice)) * 100)
+            : 0
+    );
+
     return (
         <motion.div
             whileHover={{ y: -5 }}
@@ -59,9 +65,9 @@ const ProductCard = ({ product }) => {
                         />
 
                         {/* Discount Badge */}
-                        {product.discount > 0 && (
+                        {discountPercent > 0 && (
                             <div className="absolute top-0 right-0 bg-rose-500 text-white text-[8px] sm:text-[10px] font-black px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-bl-lg sm:rounded-bl-xl rounded-tr-lg sm:rounded-tr-xl shadow-md">
-                                -{product.discount}%
+                                -{discountPercent}%
                             </div>
                         )}
                         
@@ -125,5 +131,11 @@ const ProductCard = ({ product }) => {
         </motion.div>
     );
 };
+
+const ProductCard = (props) => (
+    <Suspense fallback={<div className="aspect-[4/5] bg-slate-100 rounded-2xl animate-pulse" />}>
+        <ProductCardContent {...props} />
+    </Suspense>
+);
 
 export default ProductCard;
