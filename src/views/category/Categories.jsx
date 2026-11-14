@@ -187,7 +187,7 @@ const Categories = ({ isHome = false, onLoaded }) => {
                                     transition={{ delay: 0.2 }}
                                     className="text-[9px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-widest"
                                 >
-                                    Explore smartphones by brand
+                                    Explore smartphones by the brand
                                 </motion.p>
                             </div>
                         </header>
